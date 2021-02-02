@@ -49,23 +49,23 @@ You just need the following steps:
 3 Almost no change to old code
 
 old code:  
-	db := obdb.CreateDB()
-	db.Connect()
-	var ret *QueryRet
-	ret = db.Query()
-	db.Disconnect()
+	db := obdb.CreateDB()  
+	db.Connect()  
+	var ret *QueryRet  
+	ret = db.Query()  
+	db.Disconnect()  
 	
 new code:  
-	db := obdb.NewDBProxy(obrpcservice.Instance()) 
-	db.Connect()
-	var ret *QueryRet
-	ret = db.Query()
-	db.Disconnect()		
+	db := obdb.NewDBProxy(obrpcservice.Instance())  
+	db.Connect()  
+	var ret *QueryRet  
+	ret = db.Query()  
+	db.Disconnect()	  	
 	
 There is a fast asynchronous version for each export method  
 
-	db.Connect()
-	var ret *QueryRet
-	ret = db.Query()
-	db.DisconnectwithoutReturn()
+	db.Connect()  
+	var ret *QueryRet  
+	ret = db.Query()  
+	db.DisconnectwithoutReturn()  
 	
