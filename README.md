@@ -49,6 +49,7 @@ You just need the following steps:
 3 Almost no change to old code
 
 old code:  
+
 	db := obdb.CreateDB()  
 	db.Connect()  
 	var ret *QueryRet  
@@ -56,6 +57,7 @@ old code:
 	db.Disconnect()  
 	
 new code:  
+
 	db := obdb.NewDBProxy(obrpcservice.Instance())  
 	db.Connect()  
 	var ret *QueryRet  
