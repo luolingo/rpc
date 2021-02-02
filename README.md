@@ -46,7 +46,7 @@ You just need the following steps:
 	rs.AddServiceObject("DB", db)
 	rs.StartRPCService()
 	
-3 There is little need to change the code
+3 Almost no change to old code
 
 old code:
 	db := obdb.CreateDB()
