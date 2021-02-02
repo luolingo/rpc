@@ -2,11 +2,11 @@
 Any go objects convert to the thread safe global RPC service
 
 
-Suppose a database object
+Suppose a database object  
 
 package obdb
 
-// DB export db handle
+// DB export db handle  
 type DB struct {
 	errmsg string
 	db     *sql.DB
