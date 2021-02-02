@@ -31,7 +31,7 @@ If we want to as soon as possible convert DB object to:
 . No need to wait for time-consuming DB query  
 . Refactoring existing code as little as possible  
 
-You just need the following steps:
+You just need the following steps:  
 1 Generate source code of proxy object for existing DB object
 
 	v := obtool.NewGenerateObjectProxy("obrpcservice", "obdb", "DB", "")
