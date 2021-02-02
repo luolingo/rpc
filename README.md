@@ -24,12 +24,12 @@ func (me *DB) Disconnect() bool {
 	// ...
 }
 
-If we want to as soon as possible convert DB object to:
-. Many routines used one DB object
-. Centralized control of all SQL queries
-. Reduce resource consumption
-. No need to wait for time-consuming DB query
-. Refactoring existing code as little as possible
+If we want to as soon as possible convert DB object to:  
+. Many routines used one DB object  
+. Centralized control of all SQL queries  
+. Reduce resource consumption  
+. No need to wait for time-consuming DB query  
+. Refactoring existing code as little as possible  
 
 You just need the following steps:
 1 Generate source code of proxy object for existing DB object
