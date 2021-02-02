@@ -256,8 +256,8 @@ func New%vProxy(rs *%v.RPCService) *%vProxy {
 	return fmt.Sprintf(strfmt, me.rpcservicePkname, me.objectName, me.objectName, me.rpcservicePkname, me.objectName, me.objectName, me.rpcservicePkname, me.objectName, me.objectName)
 }
 
-// ParseProxyObject !!
-func (me *GenerateObjectProxy) ParseProxyObject(obj interface{}) {
+// GenerateProxyObject !!
+func (me *GenerateObjectProxy) GenerateProxyObject(obj interface{}) {
 	proxyObj := reflect.TypeOf(obj)
 
 	proxyHeaders := me.generateHeaders()
