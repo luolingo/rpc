@@ -47,6 +47,11 @@ func main() {
 	rs.AddServiceObject("DB", &db)
 	rs.StartRPCService()
 
-	go test()
-	test()
+	for i := 0; i < 1000; i++ {
+		go test()
+	}
+
+	for i := 0; i < 1000; i++ {
+		test()
+	}
 }

@@ -21,8 +21,7 @@ func NewDBProxy(rs *obrpcservice.RPCService) *DBProxy {
 func (me *DBProxy) Connect() (r0 bool) {
 	needRet := true
 	req := obrpcservice.NewRPCCall("DB", "Connect", needRet)
-	me.rs.PushRPCRequest(req)
-	me.rs.ConnectPoint <- obrpcservice.RemoteCall
+	me.rs.ConnectPoint <- req
 	if !needRet {
 		return
 	}
@@ -49,8 +48,7 @@ func (me *DBProxy) Connect() (r0 bool) {
 func (me *DBProxy) ConnectWithoutReturn() (r0 bool) {
 	needRet := false
 	req := obrpcservice.NewRPCCall("DB", "Connect", needRet)
-	me.rs.PushRPCRequest(req)
-	me.rs.ConnectPoint <- obrpcservice.RemoteCall
+	me.rs.ConnectPoint <- req
 	if !needRet {
 		return
 	}
@@ -77,8 +75,7 @@ func (me *DBProxy) ConnectWithoutReturn() (r0 bool) {
 func (me *DBProxy) Disconnect() {
 	needRet := true
 	req := obrpcservice.NewRPCCall("DB", "Disconnect", needRet)
-	me.rs.PushRPCRequest(req)
-	me.rs.ConnectPoint <- obrpcservice.RemoteCall
+	me.rs.ConnectPoint <- req
 	if !needRet {
 		return
 	}
@@ -101,8 +98,7 @@ func (me *DBProxy) Disconnect() {
 func (me *DBProxy) DisconnectWithoutReturn() {
 	needRet := false
 	req := obrpcservice.NewRPCCall("DB", "Disconnect", needRet)
-	me.rs.PushRPCRequest(req)
-	me.rs.ConnectPoint <- obrpcservice.RemoteCall
+	me.rs.ConnectPoint <- req
 	if !needRet {
 		return
 	}
@@ -125,8 +121,7 @@ func (me *DBProxy) DisconnectWithoutReturn() {
 func (me *DBProxy) Query(v0 string) (r0 *QueryRet) {
 	needRet := true
 	req := obrpcservice.NewRPCCall("DB", "Query", needRet, v0)
-	me.rs.PushRPCRequest(req)
-	me.rs.ConnectPoint <- obrpcservice.RemoteCall
+	me.rs.ConnectPoint <- req
 	if !needRet {
 		return
 	}
@@ -153,8 +148,7 @@ func (me *DBProxy) Query(v0 string) (r0 *QueryRet) {
 func (me *DBProxy) QueryWithoutReturn(v0 string) (r0 *QueryRet) {
 	needRet := false
 	req := obrpcservice.NewRPCCall("DB", "Query", needRet, v0)
-	me.rs.PushRPCRequest(req)
-	me.rs.ConnectPoint <- obrpcservice.RemoteCall
+	me.rs.ConnectPoint <- req
 	if !needRet {
 		return
 	}

@@ -13,16 +13,15 @@ type rpcCallCmd int
 
 const (
 	invalidCommand rpcCallCmd = -1
-	// RemoteCall !
-	RemoteCall rpcCallCmd = iota
-	// RemoteExit !
-	RemoteExit
+	remoteCall     rpcCallCmd = iota
+	remoteExit
 	remoteReturn
 	remoteTimeout
 )
 
 // RPCCall !
 type RPCCall struct {
+	command    rpcCallCmd
 	objectName string
 	methodName string
 	argus      []interface{}
@@ -36,6 +35,7 @@ type RPCCall struct {
 // NewRPCCall !
 func NewRPCCall(objName, funcName string, needRet bool, params ...interface{}) *RPCCall {
 	req := RPCCall{
+		command:    remoteCall,
 		objectName: objName,
 		methodName: funcName,
 		needReturn: needRet,
@@ -75,16 +75,15 @@ func Instance() *RPCService {
 type RPCService struct {
 	lockServiceObjects sync.Mutex
 	serviceObjects     map[string]interface{}
-	lockRPCRequests    sync.Mutex
 	rpcRequests        *list.List
 
-	ConnectPoint chan rpcCallCmd
+	ConnectPoint chan *RPCCall
 }
 
 // newRPCService !
 func newRPCService() *RPCService {
 	rs := new(RPCService)
-	rs.ConnectPoint = make(chan rpcCallCmd)
+	rs.ConnectPoint = make(chan *RPCCall)
 	rs.serviceObjects = map[string]interface{}{}
 	rs.rpcRequests = list.New()
 	return rs
@@ -110,7 +109,7 @@ func (me *RPCService) AddServiceObject(name string, object interface{}) bool {
 }
 
 // PushRPCRequest !
-func (me *RPCService) PushRPCRequest(req *RPCCall) bool {
+func (me *RPCService) pushRPCRequest(req *RPCCall) bool {
 	if req == nil {
 		return false
 	}
@@ -120,10 +119,7 @@ func (me *RPCService) PushRPCRequest(req *RPCCall) bool {
 		return false
 	}
 
-	me.lockRPCRequests.Lock()
 	me.rpcRequests.PushBack(req)
-	me.lockRPCRequests.Unlock()
-
 	return true
 }
 
@@ -182,53 +178,54 @@ func (me *RPCService) dowithRPCRequest(req *RPCCall) {
 }
 
 func (me *RPCService) startPRCServeiceHelper() {
-	currentCmd := invalidCommand
-
 	for {
 		var isexit bool = false
 
-		select {
-		case cmd, ok := <-me.ConnectPoint:
-			if !ok {
-				vglog.Debugf("RPC service channel closed")
-				isexit = true
-			} else {
-				currentCmd = cmd
+	EXIT_FOR:
+		for {
+			select {
+			case req, ok := <-me.ConnectPoint:
+				if !ok {
+					vglog.Debugf("RPC service channel closed")
+					isexit = true
+				} else {
+					me.pushRPCRequest(req)
+				}
+			default:
+				// channel is not ready
+				break EXIT_FOR
 			}
-		default:
-			// channel is not ready
-			break
 		}
 
 		for {
 			var value *RPCCall = nil
-			me.lockRPCRequests.Lock()
 			req := me.rpcRequests.Front()
 			if req != nil {
 				value = me.rpcRequests.Remove(req).(*RPCCall)
-			}
-			me.lockRPCRequests.Unlock()
-			if req == nil {
+			} else {
 				break
 			}
 
-			me.dowithRPCRequest(value)
-			if value.needReturn && value.RetChannel != nil {
-				value.RetChannel <- remoteReturn
+			if value.command == remoteExit {
+				isexit = true
+			} else {
+				me.dowithRPCRequest(value)
+				if value.needReturn && value.RetChannel != nil {
+					value.RetChannel <- remoteReturn
+				}
 			}
-
 		}
 
-		if currentCmd == RemoteExit || isexit {
+		if isexit {
 			vglog.Debugf("RPC service recv exit flag...")
 			return
 		}
 
 		// wait until channel is ready
 		select {
-		case cmd, ok := <-me.ConnectPoint:
+		case req, ok := <-me.ConnectPoint:
 			if ok {
-				currentCmd = cmd
+				me.pushRPCRequest(req)
 			} else {
 				vglog.Debugf("RPC service channel closed")
 				isexit = true

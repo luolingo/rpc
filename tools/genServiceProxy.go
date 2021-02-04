@@ -197,8 +197,7 @@ func (me *GenerateObjectProxy) parseExportFuncObjectHelper(f reflect.Method, fun
 %v{
 	needRet := %v
 	req:= %v.NewRPCCall("%v", "%v", needRet, %v)
-	me.rs.PushRPCRequest(req)
-	me.rs.ConnectPoint <- %v.RemoteCall
+	me.rs.ConnectPoint <- req
 	if !needRet {
 		return 
 	}
@@ -220,7 +219,7 @@ func (me *GenerateObjectProxy) parseExportFuncObjectHelper(f reflect.Method, fun
 
 	`
 
-	return fmt.Sprintf(strfmt, f.Name+funcNamePostfix, fullFuncName, needRet, me.rpcservicePkname, me.objectName, f.Name, callArgus, me.rpcservicePkname, funcName+funcNamePostfix, len(OutParamTypes), funcName+funcNamePostfix, retStms)
+	return fmt.Sprintf(strfmt, f.Name+funcNamePostfix, fullFuncName, needRet, me.rpcservicePkname, me.objectName, f.Name, callArgus, funcName+funcNamePostfix, len(OutParamTypes), funcName+funcNamePostfix, retStms)
 }
 
 func (me *GenerateObjectProxy) parseExportFuncObject(f reflect.Method) string {
