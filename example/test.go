@@ -47,5 +47,6 @@ func main() {
 	rs.AddServiceObject("DB", &db)
 	rs.StartRPCService()
 
+	go test()
 	test()
 }
