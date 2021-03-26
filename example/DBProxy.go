@@ -1,27 +1,42 @@
 package main
 
 import (
-	"obrpcservice"
-	"vglog"
+	"github.com/luolingo/object-service-bridge/oblog"
+	"github.com/luolingo/object-service-bridge/obrpcservice"
 )
 
 // DBProxy !
 type DBProxy struct {
-	rs *obrpcservice.RPCService
+	rs       *obrpcservice.RPCServiceExt
+	objIndex int
 }
 
 // NewDBProxy !
-func NewDBProxy(rs *obrpcservice.RPCService) *DBProxy {
+func NewDBProxy(rs *obrpcservice.RPCServiceExt) *DBProxy {
 	return &DBProxy{
-		rs: rs,
+		rs:       rs,
+		objIndex: -1,
 	}
+}
+
+func (me *DBProxy) Object(index int) *DBProxy {
+	if index >= 0 {
+		me.objIndex = index
+	}
+	return me
 }
 
 // Connect Desc:
 func (me *DBProxy) Connect() (r0 bool) {
 	needRet := true
-	req := obrpcservice.NewRPCCall("DB", "Connect", needRet)
-	me.rs.ConnectPoint <- req
+	req := obrpcservice.NewRPCAction("DB", "Connect", needRet)
+	if me.objIndex != -1 {
+		me.rs.PushRPCAction(req.SetObjectIndex(me.objIndex))
+		me.objIndex = -1
+	} else {
+		me.rs.PushRPCAction(req)
+	}
+	me.rs.ConnectPoint <- obrpcservice.Action_RemoteCall
 	if !needRet {
 		return
 	}
@@ -29,11 +44,11 @@ func (me *DBProxy) Connect() (r0 bool) {
 	<-req.RetChannel
 	close(req.RetChannel)
 	if req.RetError != nil {
-		vglog.Errorf("RPC call (me *DBProxy) Connect failed! err:%v", req.RetError)
+		oblog.Errorf("RPC call (me *DBProxy) Connect failed! err:%v", req.RetError)
 		return
 	}
 	if len(req.Ret) != 1 {
-		vglog.Errorf("returned values from RPC call (me *DBProxy) Connect service is invalid!")
+		oblog.Errorf("returned values from RPC call (me *DBProxy) Connect service is invalid!")
 		return
 	}
 
@@ -47,8 +62,14 @@ func (me *DBProxy) Connect() (r0 bool) {
 // ConnectWithoutReturn Desc:
 func (me *DBProxy) ConnectWithoutReturn() (r0 bool) {
 	needRet := false
-	req := obrpcservice.NewRPCCall("DB", "Connect", needRet)
-	me.rs.ConnectPoint <- req
+	req := obrpcservice.NewRPCAction("DB", "Connect", needRet)
+	if me.objIndex != -1 {
+		me.rs.PushRPCAction(req.SetObjectIndex(me.objIndex))
+		me.objIndex = -1
+	} else {
+		me.rs.PushRPCAction(req)
+	}
+	me.rs.ConnectPoint <- obrpcservice.Action_RemoteCall
 	if !needRet {
 		return
 	}
@@ -56,11 +77,11 @@ func (me *DBProxy) ConnectWithoutReturn() (r0 bool) {
 	<-req.RetChannel
 	close(req.RetChannel)
 	if req.RetError != nil {
-		vglog.Errorf("RPC call (me *DBProxy) ConnectWithoutReturn failed! err:%v", req.RetError)
+		oblog.Errorf("RPC call (me *DBProxy) ConnectWithoutReturn failed! err:%v", req.RetError)
 		return
 	}
 	if len(req.Ret) != 1 {
-		vglog.Errorf("returned values from RPC call (me *DBProxy) ConnectWithoutReturn service is invalid!")
+		oblog.Errorf("returned values from RPC call (me *DBProxy) ConnectWithoutReturn service is invalid!")
 		return
 	}
 
@@ -74,8 +95,14 @@ func (me *DBProxy) ConnectWithoutReturn() (r0 bool) {
 // Disconnect Desc:
 func (me *DBProxy) Disconnect() {
 	needRet := true
-	req := obrpcservice.NewRPCCall("DB", "Disconnect", needRet)
-	me.rs.ConnectPoint <- req
+	req := obrpcservice.NewRPCAction("DB", "Disconnect", needRet)
+	if me.objIndex != -1 {
+		me.rs.PushRPCAction(req.SetObjectIndex(me.objIndex))
+		me.objIndex = -1
+	} else {
+		me.rs.PushRPCAction(req)
+	}
+	me.rs.ConnectPoint <- obrpcservice.Action_RemoteCall
 	if !needRet {
 		return
 	}
@@ -83,11 +110,11 @@ func (me *DBProxy) Disconnect() {
 	<-req.RetChannel
 	close(req.RetChannel)
 	if req.RetError != nil {
-		vglog.Errorf("RPC call (me *DBProxy) Disconnect failed! err:%v", req.RetError)
+		oblog.Errorf("RPC call (me *DBProxy) Disconnect failed! err:%v", req.RetError)
 		return
 	}
 	if len(req.Ret) != 0 {
-		vglog.Errorf("returned values from RPC call (me *DBProxy) Disconnect service is invalid!")
+		oblog.Errorf("returned values from RPC call (me *DBProxy) Disconnect service is invalid!")
 		return
 	}
 
@@ -97,8 +124,14 @@ func (me *DBProxy) Disconnect() {
 // DisconnectWithoutReturn Desc:
 func (me *DBProxy) DisconnectWithoutReturn() {
 	needRet := false
-	req := obrpcservice.NewRPCCall("DB", "Disconnect", needRet)
-	me.rs.ConnectPoint <- req
+	req := obrpcservice.NewRPCAction("DB", "Disconnect", needRet)
+	if me.objIndex != -1 {
+		me.rs.PushRPCAction(req.SetObjectIndex(me.objIndex))
+		me.objIndex = -1
+	} else {
+		me.rs.PushRPCAction(req)
+	}
+	me.rs.ConnectPoint <- obrpcservice.Action_RemoteCall
 	if !needRet {
 		return
 	}
@@ -106,11 +139,11 @@ func (me *DBProxy) DisconnectWithoutReturn() {
 	<-req.RetChannel
 	close(req.RetChannel)
 	if req.RetError != nil {
-		vglog.Errorf("RPC call (me *DBProxy) DisconnectWithoutReturn failed! err:%v", req.RetError)
+		oblog.Errorf("RPC call (me *DBProxy) DisconnectWithoutReturn failed! err:%v", req.RetError)
 		return
 	}
 	if len(req.Ret) != 0 {
-		vglog.Errorf("returned values from RPC call (me *DBProxy) DisconnectWithoutReturn service is invalid!")
+		oblog.Errorf("returned values from RPC call (me *DBProxy) DisconnectWithoutReturn service is invalid!")
 		return
 	}
 
@@ -120,8 +153,14 @@ func (me *DBProxy) DisconnectWithoutReturn() {
 // Query Desc:
 func (me *DBProxy) Query(v0 string) (r0 *QueryRet) {
 	needRet := true
-	req := obrpcservice.NewRPCCall("DB", "Query", needRet, v0)
-	me.rs.ConnectPoint <- req
+	req := obrpcservice.NewRPCAction("DB", "Query", needRet, v0)
+	if me.objIndex != -1 {
+		me.rs.PushRPCAction(req.SetObjectIndex(me.objIndex))
+		me.objIndex = -1
+	} else {
+		me.rs.PushRPCAction(req)
+	}
+	me.rs.ConnectPoint <- obrpcservice.Action_RemoteCall
 	if !needRet {
 		return
 	}
@@ -129,11 +168,11 @@ func (me *DBProxy) Query(v0 string) (r0 *QueryRet) {
 	<-req.RetChannel
 	close(req.RetChannel)
 	if req.RetError != nil {
-		vglog.Errorf("RPC call (me *DBProxy) Query failed! err:%v", req.RetError)
+		oblog.Errorf("RPC call (me *DBProxy) Query failed! err:%v", req.RetError)
 		return
 	}
 	if len(req.Ret) != 1 {
-		vglog.Errorf("returned values from RPC call (me *DBProxy) Query service is invalid!")
+		oblog.Errorf("returned values from RPC call (me *DBProxy) Query service is invalid!")
 		return
 	}
 
@@ -147,8 +186,14 @@ func (me *DBProxy) Query(v0 string) (r0 *QueryRet) {
 // QueryWithoutReturn Desc:
 func (me *DBProxy) QueryWithoutReturn(v0 string) (r0 *QueryRet) {
 	needRet := false
-	req := obrpcservice.NewRPCCall("DB", "Query", needRet, v0)
-	me.rs.ConnectPoint <- req
+	req := obrpcservice.NewRPCAction("DB", "Query", needRet, v0)
+	if me.objIndex != -1 {
+		me.rs.PushRPCAction(req.SetObjectIndex(me.objIndex))
+		me.objIndex = -1
+	} else {
+		me.rs.PushRPCAction(req)
+	}
+	me.rs.ConnectPoint <- obrpcservice.Action_RemoteCall
 	if !needRet {
 		return
 	}
@@ -156,11 +201,11 @@ func (me *DBProxy) QueryWithoutReturn(v0 string) (r0 *QueryRet) {
 	<-req.RetChannel
 	close(req.RetChannel)
 	if req.RetError != nil {
-		vglog.Errorf("RPC call (me *DBProxy) QueryWithoutReturn failed! err:%v", req.RetError)
+		oblog.Errorf("RPC call (me *DBProxy) QueryWithoutReturn failed! err:%v", req.RetError)
 		return
 	}
 	if len(req.Ret) != 1 {
-		vglog.Errorf("returned values from RPC call (me *DBProxy) QueryWithoutReturn service is invalid!")
+		oblog.Errorf("returned values from RPC call (me *DBProxy) QueryWithoutReturn service is invalid!")
 		return
 	}
 

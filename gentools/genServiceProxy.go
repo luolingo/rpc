@@ -1,4 +1,4 @@
-package obtool
+package gentool
 
 import (
 	"fmt"
@@ -196,8 +196,14 @@ func (me *GenerateObjectProxy) parseExportFuncObjectHelper(f reflect.Method, fun
 // %v Desc:
 %v{
 	needRet := %v
-	req:= %v.NewRPCCall("%v", "%v", needRet, %v)
-	me.rs.ConnectPoint <- req
+	req:= %v.NewRPCAction("%v", "%v", needRet, %v)
+	if me.objIndex != -1 {
+		me.rs.PushRPCAction(req.SetObjectIndex(me.objIndex))
+		me.objIndex = -1		
+	}else{
+		me.rs.PushRPCAction(req)
+	}
+	me.rs.ConnectPoint <- %v.Action_RemoteCall
 	if !needRet {
 		return 
 	}
@@ -205,11 +211,11 @@ func (me *GenerateObjectProxy) parseExportFuncObjectHelper(f reflect.Method, fun
 	<-req.RetChannel
 	close(req.RetChannel)
 	if req.RetError != nil {
-		vglog.Errorf("RPC call %v failed! err:%%v", req.RetError)
+		oblog.Errorf("RPC call %v failed! err:%%v", req.RetError)
 		return
 	}
 	if len(req.Ret) != %v{
-		vglog.Errorf("returned values from RPC call %v service is invalid!")
+		oblog.Errorf("returned values from RPC call %v service is invalid!")
 		return
 	}
 
@@ -219,7 +225,7 @@ func (me *GenerateObjectProxy) parseExportFuncObjectHelper(f reflect.Method, fun
 
 	`
 
-	return fmt.Sprintf(strfmt, f.Name+funcNamePostfix, fullFuncName, needRet, me.rpcservicePkname, me.objectName, f.Name, callArgus, funcName+funcNamePostfix, len(OutParamTypes), funcName+funcNamePostfix, retStms)
+	return fmt.Sprintf(strfmt, f.Name+funcNamePostfix, fullFuncName, needRet, me.rpcservicePkname, me.objectName, f.Name, callArgus, me.rpcservicePkname, funcName+funcNamePostfix, len(OutParamTypes), funcName+funcNamePostfix, retStms)
 }
 
 func (me *GenerateObjectProxy) parseExportFuncObject(f reflect.Method) string {
@@ -234,25 +240,36 @@ func (me *GenerateObjectProxy) parseExportFuncObject(f reflect.Method) string {
 func (me *GenerateObjectProxy) generateHeaders() string {
 	strfmt := `
 import (
-	"vglog"
-	"%v"
+	"github.com/luolingo/object-service-bridge/oblog"
+	"github.com/luolingo/object-service-bridge/%v"
 )
 
 // %vProxy !
 type %vProxy struct {
-	rs *%v.RPCService
+	rs *%v.RPCServiceExt
+	objIndex int
 }
 	
 // New%vProxy !
-func New%vProxy(rs *%v.RPCService) *%vProxy {
+func New%vProxy(rs *%v.RPCServiceExt) *%vProxy {
 	return &%vProxy{
 		rs: rs,
+		objIndex: -1,
 	}
 }
-	
+
+func (me *%vProxy) Object(index int) *%vProxy {
+	if index >= 0 {
+		me.objIndex = index
+	}
+	return me
+}
+
 `
 
-	return fmt.Sprintf(strfmt, me.rpcservicePkname, me.objectName, me.objectName, me.rpcservicePkname, me.objectName, me.objectName, me.rpcservicePkname, me.objectName, me.objectName)
+	return fmt.Sprintf(strfmt, me.rpcservicePkname, me.objectName, me.objectName, me.rpcservicePkname, me.objectName,
+		me.objectName, me.rpcservicePkname, me.objectName, me.objectName,
+		me.objectName, me.objectName)
 }
 
 // GenerateProxyObject !!
