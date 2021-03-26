@@ -1,4 +1,4 @@
-package gentool
+package gentools
 
 import (
 	"fmt"
